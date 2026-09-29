@@ -1,6 +1,6 @@
 {
   "name": "Inventario y riesgo de quiebre",
-  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yml"],
+  "dockerComposeFile": "../docker-compose.yml",
   "service": "dev",
   "runServices": ["dev", "postgres", "rabbitmq", "forecast", "purchasing-mock"],
   "workspaceFolder": "/workspaces/inventario-quiebre",
