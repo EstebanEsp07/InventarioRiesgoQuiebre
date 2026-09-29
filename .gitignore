@@ -1,0 +1,49 @@
+# Secretos y entorno local
+.env
+.env.*
+!.env.example
+
+# Java / Maven / Gradle
+target/
+build/
+.gradle/
+*.class
+*.jar
+*.war
+hs_err_pid*
+
+# Node / React
+node_modules/
+dist/
+coverage/
+.vite/
+npm-debug.log*
+yarn-error.log*
+
+# Python (servicio de pronóstico)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDEs
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.classpath
+.project
+.settings/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Docker / datos locales
+docker/postgres/data/
+*.log
+logs/
