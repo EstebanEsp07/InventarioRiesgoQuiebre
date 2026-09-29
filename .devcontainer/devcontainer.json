@@ -5,19 +5,29 @@
   "runServices": ["dev", "postgres", "rabbitmq", "forecast", "purchasing-mock"],
   "workspaceFolder": "/workspaces/inventario-quiebre",
   "shutdownAction": "stopCompose",
+  "initializeCommand": "cp -n .env.example .env || true",
   "features": {
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "forwardPorts": [8080, 5173, 8000, 5432, 5672, 15672, 9090],
+  "forwardPorts": [
+    8080,
+    5173,
+    "postgres:5432",
+    "rabbitmq:5672",
+    "rabbitmq:15672",
+    "forecast:8000",
+    "purchasing-mock:8080"
+  ],
   "portsAttributes": {
-    "8080": { "label": "Backend Spring Boot" },
-    "5173": { "label": "Frontend React" },
-    "15672": { "label": "RabbitMQ UI" },
-    "9090": { "label": "Mock sistema de compras" }
+    "8080": { "label": "Backend Spring Boot", "onAutoForward": "notify" },
+    "5173": { "label": "Frontend React", "onAutoForward": "openBrowser" },
+    "postgres:5432": { "label": "PostgreSQL" },
+    "rabbitmq:15672": { "label": "RabbitMQ UI" },
+    "forecast:8000": { "label": "Pronóstico" },
+    "purchasing-mock:8080": { "label": "Mock sistema de compras" }
   },
-  "postCreateCommand": "cp -n .env.example .env || true",
   "customizations": {
     "vscode": {
       "extensions": [
