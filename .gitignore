@@ -1,9 +1,11 @@
-# Secretos y entorno local
+# ---------- Secretos y entorno local ----------
 .env
 .env.*
 !.env.example
+**/.env.local
+**/.env.*.local
 
-# Java / Maven / Gradle
+# ---------- Java / Maven / Gradle ----------
 target/
 build/
 .gradle/
@@ -11,16 +13,20 @@ build/
 *.jar
 *.war
 hs_err_pid*
+# Excepción: el wrapper de Maven sí debe versionarse
+!.mvn/wrapper/maven-wrapper.jar
+!**/.mvn/wrapper/maven-wrapper.jar
 
-# Node / React
+# ---------- Node / React ----------
 node_modules/
 dist/
 coverage/
 .vite/
 npm-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Python (servicio de pronóstico)
+# ---------- Python (servicio de pronóstico) ----------
 __pycache__/
 *.py[cod]
 .venv/
@@ -29,7 +35,7 @@ venv/
 .mypy_cache/
 .ruff_cache/
 
-# IDEs
+# ---------- IDEs ----------
 .idea/
 *.iml
 .vscode/*
@@ -39,11 +45,10 @@ venv/
 .project
 .settings/
 
-# Sistema operativo
+# ---------- Sistema operativo ----------
 .DS_Store
 Thumbs.db
 
-# Docker / datos locales
-docker/postgres/data/
+# ---------- Logs ----------
 *.log
 logs/
