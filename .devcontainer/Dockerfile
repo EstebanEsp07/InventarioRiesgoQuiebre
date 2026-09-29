@@ -1,24 +1,11 @@
-# syntax=docker/dockerfile:1
+FROM mcr.microsoft.com/devcontainers/java:1-21-bookworm
 
-FROM node:20-alpine AS base
-WORKDIR /app
-COPY package*.json ./
-RUN npm ci
+# Node 20 para el frontend React
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs postgresql-client python3 python3-pip python3-venv \
+    && rm -rf /var/lib/apt/lists/*
 
-# ---------- Desarrollo ----------
-FROM base AS dev
-COPY . .
-EXPOSE 5173
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
-
-# ---------- Build ----------
-FROM base AS build
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
-COPY . .
-RUN npm run build
-
-# ---------- Producción ----------
-FROM nginx:1.27-alpine AS prod
-COPY --from=build /app/dist /usr/share/nginx/html
-EXPOSE 80
+# Maven
+ARG MAVEN_VERSION=3.9.9
+RUN curl -fsSL https://archive.apache.org/dist/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz \
+    | tar -xz -C /opt && ln -s /opt/apache-maven-${MAVEN_VERSION}/bin/mvn /usr/local/bin/mvn
