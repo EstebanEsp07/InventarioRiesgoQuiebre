@@ -1,0 +1,9 @@
+{
+  "request": { "method": "POST", "urlPath": "/api/ordenes-compra" },
+  "response": {
+    "status": 201,
+    "headers": { "Content-Type": "application/json" },
+    "jsonBody": { "ordenId": "OC-{{randomValue length=6 type='NUMERIC'}}", "estado": "CREADA" },
+    "transformers": ["response-template"]
+  }
+}
