@@ -1,0 +1,39 @@
+{
+  "name": "Inventario y riesgo de quiebre",
+  "dockerComposeFile": ["../docker-compose.yml", "docker-compose.yml"],
+  "service": "dev",
+  "runServices": ["dev", "postgres", "rabbitmq", "forecast", "purchasing-mock"],
+  "workspaceFolder": "/workspaces/inventario-quiebre",
+  "shutdownAction": "stopCompose",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "forwardPorts": [8080, 5173, 8000, 5432, 5672, 15672, 9090],
+  "portsAttributes": {
+    "8080": { "label": "Backend Spring Boot" },
+    "5173": { "label": "Frontend React" },
+    "15672": { "label": "RabbitMQ UI" },
+    "9090": { "label": "Mock sistema de compras" }
+  },
+  "postCreateCommand": "cp -n .env.example .env || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-boot-dev-pack",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-python.python",
+        "ms-azuretools.vscode-docker",
+        "cweijan.vscode-postgresql-client2",
+        "humao.rest-client"
+      ],
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}
