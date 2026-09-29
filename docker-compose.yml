@@ -1,0 +1,132 @@
+name: ${COMPOSE_PROJECT_NAME:-inventario-quiebre}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_UI_PORT:-15672}:15672"
+    volumes:
+      - rabbitdata:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  forecast:
+    build: ./forecast
+    ports:
+      - "${FORECAST_PORT:-8000}:8000"
+    volumes:
+      - ./forecast:/app
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  purchasing-mock:
+    # Simula el sistema de compras existente (contrato REST)
+    image: wiremock/wiremock:3.9.1
+    command: ["--global-response-templating"]
+    ports:
+      - "${PURCHASING_PORT:-9090}:8080"
+    volumes:
+      - ./docker/purchasing-mock/mappings:/home/wiremock/mappings:ro
+
+  backend:
+    build:
+      context: ./backend
+      target: dev            # cambiar a "runtime" para imagen de producción
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_DEFAULT_USER}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_DEFAULT_PASS}
+      JWT_SECRET: ${JWT_SECRET}
+      RIESGO_QUIEBRE_UMBRAL_DIAS: ${RIESGO_QUIEBRE_UMBRAL_DIAS}
+      RECOMENDACION_EXPIRA_HORAS: ${RECOMENDACION_EXPIRA_HORAS}
+      FORECAST_URL: ${FORECAST_URL}
+      FORECAST_TIMEOUT_MS: ${FORECAST_TIMEOUT_MS}
+      FORECAST_FALLBACK_WINDOW_DAYS: ${FORECAST_FALLBACK_WINDOW_DAYS}
+      PURCHASING_BASE_URL: ${PURCHASING_BASE_URL}
+      PURCHASING_API_KEY: ${PURCHASING_API_KEY}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+      - "5005:5005"          # debug remoto
+    volumes:
+      - ./backend:/app
+      - m2cache:/root/.m2
+
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    environment:
+      VITE_API_URL: ${VITE_API_URL}
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # Entorno de desarrollo (VS Code / Codespaces). Solo se activa desde el
+  # devcontainer; `docker compose up` normal no lo levanta.
+  dev:
+    profiles: ["devcontainer"]
+    build:
+      context: ./.devcontainer
+      dockerfile: Dockerfile
+    command: sleep infinity
+    env_file: .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_RABBITMQ_HOST: rabbitmq
+      FORECAST_URL: http://forecast:8000
+      PURCHASING_BASE_URL: http://purchasing-mock:8080
+    volumes:
+      - .:/workspaces/inventario-quiebre:cached
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      forecast:
+        condition: service_started
+      purchasing-mock:
+        condition: service_started
+
+# Redis intencionalmente ausente: se agrega solo si una medición demuestra
+# la necesidad de caché (p. ej. latencia de lectura de existencias).
+
+volumes:
+  pgdata:
+  rabbitdata:
+  m2cache:
