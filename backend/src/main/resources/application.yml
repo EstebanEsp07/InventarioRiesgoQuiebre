@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: inventario-quiebre
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/inventario}
+    username: ${SPRING_DATASOURCE_USERNAME:inventario_app}
+    password: ${SPRING_DATASOURCE_PASSWORD:inventario_dev_2026}
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    username: ${SPRING_RABBITMQ_USERNAME:inventario}
+    password: ${SPRING_RABBITMQ_PASSWORD:inventario_dev_2026}
+    listener:
+      simple:
+        default-requeue-rejected: false      # tras agotar reintentos va a la DLQ
+        retry:
+          enabled: true
+          max-attempts: 5
+          initial-interval: 2s
+          multiplier: 2
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+app:
+  riesgo:
+    umbral-dias: ${RIESGO_QUIEBRE_UMBRAL_DIAS:3}
+  vigencia:
+    expira-horas: ${RECOMENDACION_EXPIRA_HORAS:24}
+  evaluacion:
+    intervalo-ms: ${EVALUACION_INTERVALO_MS:300000}
+  forecast:
+    url: ${FORECAST_URL:http://localhost:8000}
+    timeout-ms: ${FORECAST_TIMEOUT_MS:2000}
+    fallback-window-days: ${FORECAST_FALLBACK_WINDOW_DAYS:14}
+  compras:
+    base-url: ${PURCHASING_BASE_URL:http://localhost:9090}
+    api-key: ${PURCHASING_API_KEY:dev-purchasing-key}
