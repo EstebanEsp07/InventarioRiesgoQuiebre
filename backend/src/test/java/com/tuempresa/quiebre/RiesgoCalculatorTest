@@ -1,0 +1,23 @@
+package com.restaurante.quiebre.recomendaciones;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.restaurante.quiebre.recomendaciones.RiesgoCalculator.Nivel;
+import org.junit.jupiter.api.Test;
+
+class RiesgoCalculatorTest {
+    @Test
+    void clasificaPorDiasDeCobertura() {
+        assertEquals(Nivel.ALTO, RiesgoCalculator.nivel(2.9, 3));
+        assertEquals(Nivel.MEDIO, RiesgoCalculator.nivel(3.0, 3));
+        assertEquals(Nivel.MEDIO, RiesgoCalculator.nivel(5.9, 3));
+        assertEquals(Nivel.BAJO, RiesgoCalculator.nivel(6.0, 3));
+    }
+
+    @Test
+    void sinDemandaLaCoberturaEsInfinita() {
+        assertTrue(Double.isInfinite(RiesgoCalculator.diasCobertura(10, 0)));
+        assertEquals(2.0, RiesgoCalculator.diasCobertura(10, 5));
+    }
+}
