@@ -54,7 +54,7 @@ services:
   backend:
     build:
       context: ./backend
-      target: dev            # cambiar a "runtime" para imagen de producción
+      target: dev            # desarrollo; usa spring-boot:run y no genera artefacto de producción
     depends_on:
       postgres:
         condition: service_healthy
@@ -86,7 +86,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      target: dev
+      target: dev            # desarrollo; usa Vite dev server y no genera build de producción
     environment:
       VITE_API_URL: ${VITE_API_URL}
     depends_on:
