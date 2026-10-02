@@ -2,7 +2,15 @@
   "name": "Inventario y riesgo de quiebre",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "dev",
-  "runServices": ["dev", "postgres", "rabbitmq", "forecast", "purchasing-mock"],
+  "runServices": [
+    "dev",
+    "postgres",
+    "rabbitmq",
+    "forecast",
+    "purchasing-mock",
+    "backend",
+    "frontend"
+  ],
   "workspaceFolder": "/workspaces/inventario-quiebre",
   "shutdownAction": "stopCompose",
   "initializeCommand": "cp -n .env.example .env || true",
@@ -21,12 +29,26 @@
     "purchasing-mock:8080"
   ],
   "portsAttributes": {
-    "8080": { "label": "Backend Spring Boot", "onAutoForward": "notify" },
-    "5173": { "label": "Frontend React", "onAutoForward": "openBrowser" },
-    "postgres:5432": { "label": "PostgreSQL" },
-    "rabbitmq:15672": { "label": "RabbitMQ UI" },
-    "forecast:8000": { "label": "Pronóstico" },
-    "purchasing-mock:8080": { "label": "Mock sistema de compras" }
+    "8080": {
+      "label": "Backend Spring Boot",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Frontend React",
+      "onAutoForward": "openBrowser"
+    },
+    "postgres:5432": {
+      "label": "PostgreSQL"
+    },
+    "rabbitmq:15672": {
+      "label": "RabbitMQ UI"
+    },
+    "forecast:8000": {
+      "label": "Pronóstico"
+    },
+    "purchasing-mock:8080": {
+      "label": "Mock sistema de compras"
+    }
   },
   "customizations": {
     "vscode": {
